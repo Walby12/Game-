@@ -1,39 +1,35 @@
 from pyray import *
 from player import Player
 
-init_window(800, 600, "Test")
-
-monitor_w = get_monitor_width(0)
-monitor_h = get_monitor_height(0)
-
-set_window_size(monitor_w, monitor_h)
+init_window(960, 700, "Medieval Flappy Bird")
+set_target_fps(60)
 
 player = Player()
-
-toggle_fullscreen()
 
 while not window_should_close():
     player.move()
 
+    player.frame_timer += 1
+    if player.frame_timer >= player.frame_speed:
+        player.frame_timer = 0
+        player.current_frame = (player.current_frame + 1) % player.frame_count  # Cycle through animation frames
+
+    char_sprite = player.frames[player.current_frame]
+
     begin_drawing()
     clear_background(WHITE)
 
-    if player.player_pos[0] >= monitor_w - 130:
-        player.player_pos[0] = monitor_w - 130
-
-    if player.player_pos[0] < 0 + 10 :
-        player.player_pos[0] = 10
-
-    if player.player_pos[1] >= monitor_h - 130:
-        player.player_pos[1] = monitor_h - 130
-
-    if player.player_pos[1] < 0:
-        player.player_pos[1] = 0
-
-    draw_texture_ex(player.char_sprite, (int(player.player_pos[0]), int(player.player_pos[1])),0,8, WHITE)
+    draw_texture_pro(
+        char_sprite,
+        Rectangle(0, 0, char_sprite.width, char_sprite.height),
+        Rectangle(int(player.player_pos[0]), int(player.player_pos[1]), char_sprite.width * 5, char_sprite.height * 5),
+        Vector2(0, 0),
+        0,
+        WHITE
+    )
 
     end_drawing()
 
-unload_texture(player.char_sprite)
+for sprite in player.frames:
+    unload_texture(sprite)
 close_window()
-
